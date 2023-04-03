@@ -1,36 +1,43 @@
-import 'package:cabapp/Screen/HomeScreen.dart';
-import 'package:cabapp/Screen/LoginPage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cabapp/Screen/HomeScreen.dart';
 
-class AuthService {
+import '../Screen/Registration.dart';
+
+
+class AuthService{
+  FirebaseAuth auth = FirebaseAuth.instance;
+  final gooleSignIn = GoogleSignIn();
+  GoogleSignInAccount? _user;
+
+  GoogleSignInAccount get user => _user!;
+
   handleState() {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return HomeScreen();
-        }
-        else {
-          return LoginPage();
+        } else {
+          return const RegisterScreen();
         }
       },
     );
   }
 
-  signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn(
-        scopes: <String>['email']).signIn();
-    final GoogleSignInAuthentication googleAuth = await googleUser!
-        .authentication;
-
-    final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+  Future gooleLogIn() async {
+    final googleUser = await gooleSignIn.signIn();
+    if (googleUser == null) return;
+    _user = googleUser;
+    final googleAuth = await googleUser.authentication;
+    final credencial = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken
+    );
+    await FirebaseAuth.instance.signInWithCredential(credencial);
   }
-  signOut() {
-    FirebaseAuth.instance.signOut();
+  void signOutGoogle() async {
+    await gooleSignIn.signOut();
   }
 }
