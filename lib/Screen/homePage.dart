@@ -3,6 +3,7 @@
 import 'package:cabapp/Services/authService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class home_Page extends StatefulWidget {
   const home_Page({Key? key}) : super(key: key);
@@ -40,6 +41,7 @@ class _home_PageState extends State<home_Page> {
               ElevatedButton(
                   onPressed: () {
                     FirebaseAuth.instance.signOut();
+                    GoogleSignIn().signOut();
                   },
                   child: const Text(
                     "LogOut",
