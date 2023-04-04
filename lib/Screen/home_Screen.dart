@@ -1,15 +1,17 @@
-import 'package:cabapp/Services/Auth.dart';
+// ignore_for_file: camel_case_types
+
+import 'package:cabapp/Services/auth_Service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class home_Page extends StatefulWidget {
+  const home_Page({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<home_Page> createState() => _home_PageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _home_PageState extends State<home_Page> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,28 +23,29 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 FirebaseAuth.instance.currentUser!.email.toString(),
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
+
+              const SizedBox(height: 5),
+
               Text(
                 FirebaseAuth.instance.currentUser!.uid.toString(),
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
+
+              const SizedBox(height: 10),
+
               ElevatedButton(
                   onPressed: () {
                     AuthService().signOutGoogle();
+                    FirebaseAuth.instance.signOut();
                   },
                   child: const Text(
-                    "Sign Out",
+                    "LogOut",
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                   )),
-              ElevatedButton(
-                  onPressed: () {
-                   FirebaseAuth.instance.signOut();
-                  },
-                  child: const Text(
-                    "user Out",
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                  ))
             ],
           ),
         ),

@@ -1,76 +1,35 @@
-import 'dart:async';
+// ignore_for_file: use_build_context_synchronously, camel_case_types, non_constant_identifier_names
 
-import 'package:cabapp/Screen/HomeScreen.dart';
-import 'package:cabapp/Screen/Registration.dart';
-import 'package:cabapp/Services/Auth.dart';
+import 'package:cabapp/Screen/register_Page.dart';
+import 'package:cabapp/Services/auth_Service.dart';
 import 'package:cabapp/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class login_Page extends StatefulWidget {
+  const login_Page({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<login_Page> createState() => _login_PageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _login_PageState extends State<login_Page> {
+
+  final GlobalKey<FormState> _loginFeild = GlobalKey<FormState>();
+  final email_Controller = TextEditingController();
+  final pass_Controller = TextEditingController();
   var email = '';
   var password = '';
-  GlobalKey<FormState> _loginfeild = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passController = TextEditingController();
   bool pass = true;
   bool temp = false;
 
   @override
   void dispose() {
-    emailController.dispose();
-    passController.dispose();
     super.dispose();
+    email_Controller.dispose();
+    pass_Controller.dispose();
   }
-  userLogin() async {
-    try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.redAccent,
-          content: Text(
-            "User Login",
-            style: TextStyle(
-                fontSize: 18,color: Colors.red
-            ),
-          )));
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MyApp(),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      if(e.code == 'user-not-found'){
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text(
-              "user-not-found",
-              style: TextStyle(
-                fontSize: 18,color: Colors.red
-              ),
-            )));
-      }
-      else if(e.code == 'Wrong Password'){
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text(
-              "user-not-found",
-              style: TextStyle(
-                fontSize: 16,color: Colors.blue
-              ),
-            )));
-      }
-    }
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -79,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Form(
           //form Change event for form field or not
           onChanged: () {
-            if (_loginfeild.currentState!.validate() == true) {
+            if (_loginFeild.currentState!.validate() == true) {
               setState(() {
                 temp = true;
               });
@@ -89,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
               });
             }
           },
-          key: _loginfeild,
+          key: _loginFeild,
           child: Padding(
             padding: EdgeInsets.only(
                 left: MediaQuery.of(context).size.width / 15,
@@ -119,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => RegisterScreen(),
+                                builder: (context) => const register_Page(),
                               ));
                         },
                         child: const Text(
@@ -141,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextFormField(
-                          controller: emailController,
+                          controller: email_Controller,
                           decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey.shade200,
@@ -158,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                             final bool emailValid = RegExp(
                                     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                 .hasMatch(value!);
-                            if (value!.isEmpty) {
+                            if (value.isEmpty) {
                               return "Enter Email";
                             } else if (!emailValid) {
                               return "Enter Valid Email";
@@ -171,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       //Password TextField
                       TextFormField(
-                        controller: passController,
+                        controller: pass_Controller,
                         obscureText: pass,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         decoration: InputDecoration(
@@ -202,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                         validator: (value) {
                           if (value!.isEmpty) {
                             return "Enter Password";
-                          } else if (passController.text.length < 6) {
+                          } else if (pass_Controller.text.length < 6) {
                             return "Password Length Should be more than 6 charcters";
                           } else {
                             return null;
@@ -215,7 +174,6 @@ class _LoginPageState extends State<LoginPage> {
                       //Elevated Button For Sign In
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            onSurface: Colors.indigoAccent,
                             elevation: 0.1,
                             minimumSize: Size(
                                 MediaQuery.of(context).size.height / 1,
@@ -225,12 +183,12 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           onPressed: temp == true
                               ? () {
-                                  if (_loginfeild.currentState!.validate()) {
+                                  if (_loginFeild.currentState!.validate()) {
                                     setState(() {
-                                      email = emailController.text;
-                                      password = passController.text;
+                                      email = email_Controller.text;
+                                      password = pass_Controller.text;
                                     });
-                                    userLogin();
+                                    user_Login();
                                   }
                                 }
                               : null,
@@ -267,7 +225,6 @@ class _LoginPageState extends State<LoginPage> {
                       //Elevated Button for Google
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
                             elevation: 0.1,
                             minimumSize: Size(
                                 MediaQuery.of(context).size.height / 1,
@@ -276,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(5.0)),
                           ),
                           onPressed: () {
-                            AuthService().gooleLogIn();
+                            AuthService().google_Login();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -318,5 +275,40 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     ));
+  }
+  Future<Widget?> user_Login() async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Colors.tealAccent,
+          content: Text(
+            "User Login",
+            style: TextStyle(fontSize: 18, color: Colors.black),
+          )));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MyApp(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.tealAccent,
+            content: Text(
+              "user-not-found",
+              style: TextStyle(fontSize: 18, color: Colors.red),
+            )));
+      } else if (e.code == 'Wrong Password') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.tealAccent,
+            content: Text(
+              "user-not-found",
+              style: TextStyle(fontSize: 16, color: Colors.blue),
+            )));
+      }
+    }
+    return null;
   }
 }
