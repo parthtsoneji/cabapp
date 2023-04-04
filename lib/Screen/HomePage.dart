@@ -1,18 +1,19 @@
 // ignore_for_file: camel_case_types
 
-import 'package:cabapp/Services/authService.dart';
+import 'package:cabapp/Screen/LoginPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
-class home_Page extends StatefulWidget {
-  const home_Page({Key? key}) : super(key: key);
+import '../Services/AuthServices.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<home_Page> createState() => _home_PageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _home_PageState extends State<home_Page> {
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,8 +41,7 @@ class _home_PageState extends State<home_Page> {
 
               ElevatedButton(
                   onPressed: () {
-                    FirebaseAuth.instance.signOut();
-                    GoogleSignIn().signOut();
+                    AuthService().signOut().then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage(),)));
                   },
                   child: const Text(
                     "LogOut",

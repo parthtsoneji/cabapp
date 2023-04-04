@@ -1,20 +1,23 @@
 // ignore_for_file: use_build_context_synchronously, camel_case_types, non_constant_identifier_names
 
-import 'package:cabapp/Screen/registerPage.dart';
-import 'package:cabapp/Services/authService.dart';
+import 'package:cabapp/Screen/HomePage.dart';
+import 'package:cabapp/Screen/RegisterPage.dart';
 import 'package:cabapp/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class login_Page extends StatefulWidget {
-  const login_Page({Key? key}) : super(key: key);
+import '../Services/AuthServices.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<login_Page> createState() => _login_PageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _login_PageState extends State<login_Page> {
-
+class _LoginPageState extends State<LoginPage> {
+  final prefs = SharedPreferences.getInstance() as SharedPreferences;
   final GlobalKey<FormState> _loginFeild = GlobalKey<FormState>();
   final email_Controller = TextEditingController();
   final pass_Controller = TextEditingController();
@@ -23,13 +26,18 @@ class _login_PageState extends State<login_Page> {
   bool pass = true;
   bool temp = false;
 
+  Future emailIdSharedPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("email", email_Controller.text);
+  }
+
   @override
   void dispose() {
     super.dispose();
     email_Controller.dispose();
     pass_Controller.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -78,7 +86,7 @@ class _login_PageState extends State<login_Page> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const register_Page(),
+                                builder: (context) => const RegisterPage(),
                               ));
                         },
                         child: const Text(
@@ -276,22 +284,17 @@ class _login_PageState extends State<login_Page> {
       ),
     ));
   }
-  Future<Widget?> user_Login() async {
+
+  Widget? user_Login() {
     try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.tealAccent,
-          content: Text(
-            "User Login",
-            style: TextStyle(fontSize: 18, color: Colors.black),
-          )));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MyApp(),
-        ),
-      );
+      FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((value) => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              ));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
