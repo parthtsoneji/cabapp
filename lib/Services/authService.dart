@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cabapp/Screen/home_Screen.dart';
-import '../Screen/register_Page.dart';
+import 'package:cabapp/Screen/homePage.dart';
+import '../Screen/registerPage.dart';
 
 class AuthService {
 
@@ -42,9 +42,5 @@ class AuthService {
     final credencial = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
     await FirebaseAuth.instance.signInWithCredential(credencial);
-  }
-
-  void signOutGoogle() async {
-    await googleSignIn.signOut();
   }
 }

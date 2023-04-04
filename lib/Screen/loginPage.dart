@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, camel_case_types, non_constant_identifier_names
 
-import 'package:cabapp/Screen/register_Page.dart';
-import 'package:cabapp/Services/auth_Service.dart';
+import 'package:cabapp/Screen/registerPage.dart';
+import 'package:cabapp/Services/authService.dart';
 import 'package:cabapp/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

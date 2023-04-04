@@ -1,6 +1,6 @@
 // ignore_for_file: camel_case_types
 
-import 'package:cabapp/Services/auth_Service.dart';
+import 'package:cabapp/Services/authService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +39,6 @@ class _home_PageState extends State<home_Page> {
 
               ElevatedButton(
                   onPressed: () {
-                    AuthService().signOutGoogle();
                     FirebaseAuth.instance.signOut();
                   },
                   child: const Text(
