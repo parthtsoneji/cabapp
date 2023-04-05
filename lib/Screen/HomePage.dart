@@ -24,13 +24,12 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                FirebaseAuth.instance.currentUser!.email.toString(),
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                FirebaseAuth.instance.currentUser?.email ?? 'No email found',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 5),
               Text(
-                FirebaseAuth.instance.currentUser!.uid.toString(),
+                FirebaseAuth.instance.currentUser?.uid ?? 'No user found',
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
@@ -42,7 +41,7 @@ class _HomePageState extends State<HomePage> {
                         .then((value) => Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoginPage(),
+                              builder: (context) => const LoginPage(),
                             )));
                   },
                   child: const Text(

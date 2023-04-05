@@ -19,31 +19,50 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String? _email = '';
+  String? _email;
+  String? _regEmail;
 
   Future<void> getEmailFromSharedPref() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
+    SharedPreferences localData = await SharedPreferences.getInstance();
     setState(() {
-      _email = pref.getString('email');
+      _email = localData.getString('email');
+      _regEmail = localData.getString('regEmail');
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getEmailFromSharedPref();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SafeArea(
-        child: Scaffold(
-          body: StreamBuilder(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context,snapshot) {
-              if (snapshot.hasData == _email) {
-                  return const HomePage();
-                } else {
-                  return const LoginPage();
-                }
-            },
-          ),
+      home: Scaffold(
+        body: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              User? user = snapshot.data;
+              print(user);
+              if (FirebaseAuth.instance.currentUser == null ||
+                  FirebaseAuth.instance.currentUser!.email == null ||
+                  FirebaseAuth.instance.currentUser!.email != _regEmail) {
+                return LoginPage();
+              } else if (_email == _regEmail || FirebaseAuth.instance.currentUser!.email ==
+                  user!.email) {
+                return HomePage();
+              } else {
+                return LoginPage();
+              }
+            } else {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
         ),
       ),
     );
