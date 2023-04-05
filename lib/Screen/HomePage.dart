@@ -28,20 +28,22 @@ class _HomePageState extends State<HomePage> {
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
-
               const SizedBox(height: 5),
-
               Text(
                 FirebaseAuth.instance.currentUser!.uid.toString(),
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
-
               const SizedBox(height: 10),
-
               ElevatedButton(
                   onPressed: () {
-                    AuthService().signOut().then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage(),)));
+                    AuthService()
+                        .signOut()
+                        .then((value) => Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            )));
                   },
                   child: const Text(
                     "LogOut",

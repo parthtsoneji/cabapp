@@ -2,7 +2,6 @@
 
 import 'package:cabapp/Screen/HomePage.dart';
 import 'package:cabapp/Screen/RegisterPage.dart';
-import 'package:cabapp/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,7 +16,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final prefs = SharedPreferences.getInstance() as SharedPreferences;
   final GlobalKey<FormState> _loginFeild = GlobalKey<FormState>();
   final email_Controller = TextEditingController();
   final pass_Controller = TextEditingController();
@@ -25,11 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   var password = '';
   bool pass = true;
   bool temp = false;
-
-  Future emailIdSharedPref() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString("email", email_Controller.text);
-  }
+  String _email = '';
 
   @override
   void dispose() {
@@ -190,12 +184,19 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(5.0)),
                           ),
                           onPressed: temp == true
-                              ? () {
+                              ? () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  setState(() {
+                                    _email = email_Controller.text;
+                                  });
+                                  prefs.setString("email", _email);
                                   if (_loginFeild.currentState!.validate()) {
                                     setState(() {
                                       email = email_Controller.text;
                                       password = pass_Controller.text;
                                     });
+
                                     user_Login();
                                   }
                                 }
