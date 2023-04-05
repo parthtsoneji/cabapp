@@ -36,18 +36,12 @@ class _MyAppState extends State<MyApp> {
         child: Scaffold(
           body: StreamBuilder(
             stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else {
-                if (_email != null &&
-                    snapshot.hasData &&
-                    snapshot.data!.email == _email) {
+            builder: (context,snapshot) {
+              if (snapshot.hasData == _email) {
                   return const HomePage();
                 } else {
                   return const LoginPage();
                 }
-              }
             },
           ),
         ),

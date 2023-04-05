@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                                   SharedPreferences prefs =
                                       await SharedPreferences.getInstance();
                                   setState(() {
-                                    _email = email_Controller.text;
+                                    _email = email_Controller.text.trim();
                                   });
                                   prefs.setString("email", _email);
                                   if (_loginFeild.currentState!.validate()) {
