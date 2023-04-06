@@ -290,7 +290,7 @@ class _LoginPageState extends State<LoginPage> {
                                     borderRadius: BorderRadius.circular(5.0)),
                               ),
                               onPressed: () {
-                                AuthService().google_Login().then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(),)));
+                                AuthService().google_Login(context: context).then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(),)));
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,

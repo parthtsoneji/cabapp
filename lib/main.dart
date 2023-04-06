@@ -21,12 +21,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String? _email;
   String? _regEmail;
+  String? _userEmail;
 
   Future<void> getEmailFromSharedPref() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     setState(() {
       _email = localData.getString('email');
       _regEmail = localData.getString('regEmail');
+      _userEmail = localData.getString('userEmail');
     });
   }
 
@@ -46,19 +48,21 @@ class _MyAppState extends State<MyApp> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
               User? user = snapshot.data;
-              print(user);
               if (FirebaseAuth.instance.currentUser == null ||
                   FirebaseAuth.instance.currentUser!.email == null ||
                   FirebaseAuth.instance.currentUser!.email != _regEmail) {
-                return LoginPage();
-              } else if (_email == _regEmail || FirebaseAuth.instance.currentUser!.email ==
-                  user!.email) {
-                return HomePage();
-              } else {
-                return LoginPage();
+                return const LoginPage();
+              }
+              else if (_email == _regEmail) {
+                return const HomePage();
+              } else if (user?.email == _userEmail) {
+                return const HomePage();
+              }
+              else {
+                return const LoginPage();
               }
             } else {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
