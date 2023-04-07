@@ -154,6 +154,9 @@ class _HomePageState extends State<HomePage> {
                       child: GestureDetector(
                         onTap: () async {
                           await addStudent();
+                          setState(() {
+                            nameController.clear();
+                          });
                         },
                         child: Container(
                           width: 80,
@@ -253,8 +256,7 @@ class _HomePageState extends State<HomePage> {
                                                   onChanged: (bool? value) {
                                                     setState(() {
                                                       if (value!) {
-                                                        selectedIndexes
-                                                            .add(index);
+                                                        selectedIndexes.add(index);
                                                       } else {
                                                         selectedIndexes
                                                             .remove(index);
