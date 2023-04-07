@@ -1,8 +1,11 @@
-class User {
-  String? uid;
-  String? name;
-  String? time;
-  String? date;
+import 'package:flutter/material.dart';
 
-  User({this.uid, this.name, this.time, this.date});
+class User {
+
+  String? name;
+  DateTime? date;
+  TimeOfDay? time;
+
+
+  User({this.name, this.date,this.time});
 }
