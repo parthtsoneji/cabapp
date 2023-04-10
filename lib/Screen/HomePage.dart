@@ -1,10 +1,9 @@
 // ignore_for_file: camel_case_types, use_build_context_synchronously
 
 import 'package:cabapp/Screen/LoginPage.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../Services/AuthServices.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,23 +23,37 @@ class _HomePageState extends State<HomePage> {
   bool unChecked = false;
   String? documentId;
   DateTime date = DateTime.now();
-  TimeOfDay time = TimeOfDay.now();
+  TimeOfDay? _selectedTime;
   final selectedIndexes = <int>[];
-
   final CollectionReference Todos =
       FirebaseFirestore.instance.collection('Todos');
 
-  Future<void> addStudent() {
-    return Todos.doc(documentId)
-        .set({
-          'todo_name': nameController.text,
-          'todo_date': date,
-          'todo_time': {time.minute, time.hour}
-        })
-        .then((value) => print("Student data Added"))
-        .catchError((error) => print("Student couldn't be added."));
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? pickedTime =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (pickedTime != null && pickedTime != _selectedTime) {
+      setState(() {
+        _selectedTime = pickedTime;
+      });
+    }
   }
 
+  Future<void> addStudent() async {
+    DateTime dateTime = DateTime.now();
+    String yourDateTime = DateFormat('hh:mm').format(dateTime);
+    await Todos.add({
+      'todo_name': nameController.text,
+      'todo_time': yourDateTime,
+    }).then((value) {
+      print("Todo added successfully!");
+      setState(() {
+        nameController.clear();
+        _selectedTime = Timestamp.now() as TimeOfDay?;
+      });
+    }).catchError((error) {
+      print("Error adding todo: $error");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,21 +141,7 @@ class _HomePageState extends State<HomePage> {
                           top: MediaQuery.of(context).size.height / 100),
                       child: GestureDetector(
                         onTap: () async {
-                          DateTime? newDate = await showDatePicker(
-                              context: context,
-                              initialDate: date,
-                              firstDate: DateTime(1900),
-                              lastDate: DateTime(2100));
-
-                          TimeOfDay? newTime = await showTimePicker(
-                              context: context, initialTime: time);
-
-                          if (newDate == null) return;
-                          if (newTime == null) return;
-                          setState(() {
-                            date = newDate;
-                            time = newTime;
-                          });
+                          _selectTime(context);
                         },
                         child: const Icon(Icons.timer_rounded,
                             color: Colors.white, size: 35),
@@ -154,9 +153,6 @@ class _HomePageState extends State<HomePage> {
                       child: GestureDetector(
                         onTap: () async {
                           await addStudent();
-                          setState(() {
-                            nameController.clear();
-                          });
                         },
                         child: Container(
                           width: 80,
@@ -187,144 +183,137 @@ class _HomePageState extends State<HomePage> {
                         style: TextStyle(color: Colors.white, fontSize: 15),
                       ),
                     ),
-                    Stack(
-                      children: [
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                  height: 400,
-                                  width: 350,
-                                  color: const Color(0xFF2A2951),
-                                  child: StreamBuilder(
-                                    stream: FirebaseFirestore.instance
-                                        .collection('Todos')
-                                        .snapshots(),
-                                    builder: (context, snapshot) {
-                                      if (!snapshot.hasData) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      } else {
-                                        return ListView(
-                                          children:
-                                              snapshot.data!.docs.map((docs) {
-                                            return Card(
-                                              elevation: 0,
-                                              color: const Color(0xFF2A2951),
-                                              child: CheckboxListTile(
-                                                  checkboxShape:
-                                                      RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  side: const BorderSide(
-                                                      width: 3,
-                                                      color: Color(0xFFBB1EF1)),
-                                                  checkColor:
-                                                      Colors.black,
-                                                  activeColor: Color(0xFFBB1EF1),
-                                                  controlAffinity:
-                                                      ListTileControlAffinity
-                                                          .leading,
-                                                  title: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        docs.data()[
-                                                            'todo_name'],
-                                                        style: const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 17),
-                                                      ),
-                                                      Text(
-                                                        docs
-                                                            .data()['todo_time']
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 17),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  value: selectedIndexes
-                                                      .contains(index),
-                                                  onChanged: (bool? value) {
-                                                    setState(() {
-                                                      if (value!) {
-                                                        selectedIndexes.add(index);
-                                                      } else {
-                                                        selectedIndexes
-                                                            .remove(index);
-                                                      }
-                                                    });
-                                                  }),
-                                            );
-                                          }).toList(),
-                                        );
-                                      }
-                                    },
-                                  )),
-                            ]),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height / 2.2),
-                          child: Container(
-                            height: 40,
-                            width: 350,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                color: const Color(0xFF131136),
-                                boxShadow: const [
-                                  BoxShadow(
-                                      blurRadius: 15.0, color: Colors.white)
-                                ],
-                                border: Border.all(
-                                    color: const Color(0xFF7F39A9), width: 3)),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  left: MediaQuery.of(context).size.width / 30,
-                                  right:
-                                      MediaQuery.of(context).size.width / 30),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("items",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold)),
-                                  GestureDetector(
-                                    onTap: selectedIndexes.isEmpty ? null : () async {
-                                      final batch = FirebaseFirestore.instance.batch();
-                                         for (int index in selectedIndexes.toList()) {
-                                           DocumentSnapshot document = (await FirebaseFirestore.instance.collection('Todos').get()).docs[index];
-                                           batch.delete(document.reference);
-                                         }
-                                         await batch.commit();
-                                         setState(() {
-                                           selectedIndexes.clear();
-                                         });
-                                    },
-                                    child: const Text(
-                                      "Clear Completed",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
+                    Container(
+                      height: 400,
+                      width: 350,
+                      color: const Color(0xFF2A2951),
+                      child: Stack(children: [
+                        StreamBuilder(
+                          stream: FirebaseFirestore.instance
+                              .collection('Todos')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            } else {
+                              final todos = snapshot.data!.docs;
+                              return Stack(children: [
+                                ListView.builder(
+                                    itemCount: todos.length,
+                                    itemBuilder: (context, index) {
+                                      final todo = todos[index];
+                                      return CheckboxListTile(
+                                        checkboxShape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        side: const BorderSide(
+                                            width: 3, color: Color(0xFFBB1EF1)),
+                                        checkColor: Colors.black,
+                                        activeColor: const Color(0xFFBB1EF1),
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                        title: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              todo.data()['todo_name'],
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 17),
+                                            ),
+                                            Text(
+                                              todo
+                                                  .data()['todo_time']
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 17),
+                                            ),
+                                          ],
+                                        ),
+                                        value: selectedIndexes.contains(index),
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            if (value!) {
+                                              selectedIndexes.add(index);
+                                            } else {
+                                              selectedIndexes.remove(index);
+                                            }
+                                          });
+                                        },
+                                      );
+                                    }),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: MediaQuery.of(context).size.height /
+                                          2.2),
+                                  child: Container(
+                                    height: 40,
+                                    width: 350,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.rectangle,
+                                        color: const Color(0xFF131136),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                              blurRadius: 15.0,
+                                              color: Colors.white)
+                                        ],
+                                        border: Border.all(
+                                            color: const Color(0xFF7F39A9),
+                                            width: 3)),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          left: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              30,
+                                          right: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              30),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text("items",
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold)),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              AuthService()
+                                                  .deleteSelectedDocuments(
+                                                      selectedIndexes
+                                                          .map((index) =>
+                                                              todos[index].id)
+                                                          .toList());
+                                              setState(() {
+                                                selectedIndexes.clear();
+                                              });
+                                            },
+                                            child: const Text(
+                                              "Clear Completed",
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+                                  ),
+                                )
+                              ]);
+                            }
+                          },
+                        ),
+                      ]),
                     ),
                   ]),
                 ),
